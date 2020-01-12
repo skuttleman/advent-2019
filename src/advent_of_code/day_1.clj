@@ -12,7 +12,9 @@
         fuel))))
 
 (comment
-  ;; part one
-  (transduce (map mass->fuel) + (u/resource 1 (map u/parse-long)))
-  ;; part two
-  (transduce (map mass->fuel') + (u/resource 1 (map u/parse-long))))
+  (let [input (u/resource 1 (map u/parse-long))]
+    ;; part one
+    (transduce (map mass->fuel) + input)
+
+    ;; part two
+    (transduce (map mass->fuel') + input)))
