@@ -12,7 +12,7 @@
         (sequence xform))))
 
 (defn parse-long [s]
-  (Long/parseLong s))
+  (Long/parseLong (str s)))
 
 (defn comma-separated [xform]
   (fn [line]
