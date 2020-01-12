@@ -17,3 +17,11 @@
 (defn comma-separated [xform]
   (fn [line]
     (sequence xform (string/split line #","))))
+
+(defn combos [set]
+  (cond
+    (empty? set) ()
+    (= 1 (count set)) (map list set)
+    :else (mapcat (fn [item]
+                    (map (partial cons item) (combos (disj set item))))
+                  set)))
