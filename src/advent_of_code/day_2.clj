@@ -32,8 +32,7 @@
   (first (step-through (assoc v 1 noun 2 verb))))
 
 (comment
-  (let [input (first (u/resource 2 (map (comp (partial into [] (map u/parse-long))
-                                              #(string/split % #",")))))]
+  (let [input (first (u/resource 2 (map (comp vec (u/comma-separated (map u/parse-long))))))]
     ;; part one
     (pos-one input 12 2)
 
