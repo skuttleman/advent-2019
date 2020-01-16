@@ -1,6 +1,6 @@
 (ns advent-of-code.day-5
   (:require [advent-of-code.shared.int-code :as int-code]
-            [advent-of-code.utils :as u]
+            [advent-of-code.shared.utils :as u]
             [clojure.core.async :as async]))
 
 (defn diagnostic-code [input in-val]

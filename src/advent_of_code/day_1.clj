@@ -1,5 +1,5 @@
 (ns advent-of-code.day-1
-  (:require [advent-of-code.utils :as u]))
+  (:require [advent-of-code.shared.utils :as u]))
 
 (defn mass->fuel [mass]
   (- (long (Math/floor (/ mass 3))) 2))

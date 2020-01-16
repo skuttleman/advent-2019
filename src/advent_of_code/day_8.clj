@@ -1,5 +1,5 @@
 (ns advent-of-code.day-8
-  (:require [advent-of-code.utils :as u]
+  (:require [advent-of-code.shared.utils :as u]
             [clojure.string :as string]))
 
 (defn ->layers [width height digits]

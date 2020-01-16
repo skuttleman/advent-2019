@@ -1,5 +1,5 @@
 (ns advent-of-code.day-3
-  (:require [advent-of-code.utils :as u]
+  (:require [advent-of-code.shared.utils :as u]
             [clojure.set :as set]))
 
 (defn parse-inst [s]

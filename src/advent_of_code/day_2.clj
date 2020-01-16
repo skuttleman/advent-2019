@@ -1,6 +1,6 @@
 (ns advent-of-code.day-2
   (:require [advent-of-code.shared.int-code :as int-code]
-            [advent-of-code.utils :as u]))
+            [advent-of-code.shared.utils :as u]))
 
 (defn pos-one [v noun verb]
   (first (int-code/compute (assoc v 1 noun 2 verb))))

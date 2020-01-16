@@ -1,7 +1,7 @@
 (ns advent-of-code.day-7
   (:require [clojure.core.async :as async]
             [advent-of-code.shared.int-code :as int-code]
-            [advent-of-code.utils :as u]))
+            [advent-of-code.shared.utils :as u]))
 
 (defn ->amp [input in-val]
   (let [in (async/chan 100)

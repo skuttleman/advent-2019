@@ -1,4 +1,4 @@
-(ns advent-of-code.utils
+(ns advent-of-code.shared.utils
   (:require [clojure.java.io :as io]
             [clojure.string :as string]))
 

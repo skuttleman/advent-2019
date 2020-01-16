@@ -1,5 +1,5 @@
 (ns advent-of-code.shared.int-code
-  (:require [advent-of-code.utils :as u]
+  (:require [advent-of-code.shared.utils :as u]
             [clojure.core.async :as async]))
 
 (defn ->op [n]
