@@ -13,56 +13,91 @@
                 (map u/parse-long (reverse (subs str-n 0 off-by-2))))]
     (concat [op] codes (repeat 0))))
 
-(defmulti get-arg (comp first list))
-(defmethod get-arg 0 [_ input arg]
-  (get input arg))
+(defmulti write-arg (comp peek vector))
 
-(defmethod get-arg 1 [_ _ arg]
+(defmethod write-arg :default [_ arg _]
   arg)
 
-(defn math-step [input pos f [arg-1 arg-mode-1 arg-2 arg-mode-2 arg-3]]
-  [(assoc input arg-3 (f (get-arg arg-mode-1 input arg-1)
-                          (get-arg arg-mode-2 input arg-2)))
-   (+ 4 pos)])
+(defmethod write-arg 2 [{:keys [rel-base]} arg _]
+  (+ rel-base arg))
 
-(defn read-step [input pos std-in [arg]]
+(defmulti get-arg (comp peek vector))
+
+(defmethod get-arg 0 [{:keys [input]} arg _]
+  (get input arg 0))
+
+(defmethod get-arg 1 [_ arg _]
+  arg)
+
+(defmethod get-arg 2 [{:keys [input rel-base]} arg _]
+  (get input (+ rel-base arg) 0))
+
+(defn math-step [state f [arg-1 arg-mode-1 arg-2 arg-mode-2 arg-3 arg-mode-3]]
+  (-> state
+      (update :input
+              assoc
+              (write-arg state arg-3 arg-mode-3)
+              (f (get-arg state arg-1 arg-mode-1)
+                 (get-arg state arg-2 arg-mode-2)))
+      (update :pos + 4)))
+
+(defn read-step [state std-in [arg arg-mode]]
   (async/go
-    [(assoc input arg (async/<! std-in))
-     (+ 2 pos)]))
+    (-> state
+        (update :input assoc (write-arg state arg arg-mode) (async/<! std-in))
+        (update :pos + 2))))
 
-(defn write-step [input pos std-out [arg arg-mode]]
+(defn write-step [state std-out [arg arg-mode]]
   (async/go
-    (async/>! std-out (get-arg arg-mode input arg))
-    [input (+ 2 pos)]))
+    (async/>! std-out (get-arg state arg arg-mode))
+    (update state :pos + 2)))
 
-(defn jump-step [input pos pred [arg-1 arg-mode-1 arg-2 arg-mode-2]]
-  (if (pred (get-arg arg-mode-1 input arg-1))
-    [input (get-arg arg-mode-2 input arg-2)]
-    [input (+ 3 pos)]))
+(defn jump-step [state pred [arg-1 arg-mode-1 arg-2 arg-mode-2]]
+  (if (pred (get-arg state arg-1 arg-mode-1))
+    (assoc state :pos (get-arg state arg-2 arg-mode-2))
+    (update state :pos + 3)))
 
-(defn compare-step [input pos compare [arg-1 arg-mode-1 arg-2 arg-mode-2 arg-3]]
-  [(assoc input arg-3 (if (compare (get-arg arg-mode-1 input arg-1)
-                                    (get-arg arg-mode-2 input arg-2))
-                         1
-                         0))
-   (+ 4 pos)])
+(defn compare-step [state compare [arg-1 arg-mode-1 arg-2 arg-mode-2 arg-3 arg-mode-3]]
+  (-> state
+      (update :input
+              assoc
+              (write-arg state arg-3 arg-mode-3)
+              (if (compare (get-arg state arg-1 arg-mode-1)
+                                              (get-arg state arg-2 arg-mode-2))
+                                   1
+                                   0))
+      (update :pos + 4)))
+
+(defn relative-step [state [arg-1 arg-mode-1]]
+  (-> state
+      (update :rel-base + (get-arg state arg-1 arg-mode-1))
+      (update :pos + 2)))
 
 (defn compute
   ([input]
    (async/<!! (compute input nil nil)))
   ([input std-in std-out]
-   (async/go-loop [[input pos] [input 0]]
-     (let [[op & args] (drop pos input)
-           [op & modes] (->op op)
+   (async/go-loop [{:keys [input pos] :as state} {:input    (zipmap (range) input)
+                                                  :pos      0
+                                                  :rel-base 0}]
+     (let [[op* & args] (map #(get input % 0) (range pos (+ 5 pos)))
+           [op & modes] (->op op*)
            args+modes (interleave args modes)]
+       ;(println (with-out-str (pp/pprint [pos state])))
        (condp = op
-         1 (recur (math-step input pos + args+modes))
-         2 (recur (math-step input pos * args+modes))
-         3 (recur (async/<! (read-step input pos std-in args+modes)))
-         4 (recur (async/<! (write-step input pos std-out args+modes)))
-         5 (recur (jump-step input pos (complement zero?) args+modes))
-         6 (recur (jump-step input pos zero? args+modes))
-         7 (recur (compare-step input pos < args+modes))
-         8 (recur (compare-step input pos = args+modes))
-         99 (do (run! async/close! [std-in std-out])
-                input))))))
+         1 (recur (math-step state + args+modes))
+         2 (recur (math-step state * args+modes))
+         3 (recur (async/<! (read-step state std-in args+modes)))
+         4 (recur (async/<! (write-step state std-out args+modes)))
+         5 (recur (jump-step state (complement zero?) args+modes))
+         6 (recur (jump-step state zero? args+modes))
+         7 (recur (compare-step state < args+modes))
+         8 (recur (compare-step state = args+modes))
+         9 (recur (relative-step state args+modes))
+         99 (do (run! async/close! (filter some? [std-in std-out]))
+                (->> input
+                     keys
+                     (reduce max -1)
+                     inc
+                     range
+                     (mapv #(get input % 0)))))))))
