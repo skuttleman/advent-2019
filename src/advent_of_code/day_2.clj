@@ -6,7 +6,7 @@
   (first (int-code/compute (assoc v 1 noun 2 verb))))
 
 (comment
-  (let [input (first (u/resource 2 (map (comp vec (u/comma-separated (map u/parse-long))))))]
+  (let [input (u/int-code-resource 2)]
     ;; part one
     (pos-one input 12 2)
 

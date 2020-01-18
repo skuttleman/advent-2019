@@ -1,5 +1,6 @@
 (ns advent-of-code.day-3
-  (:require [advent-of-code.shared.utils :as u]
+  (:require [advent-of-code.shared.directions :as dir]
+            [advent-of-code.shared.utils :as u]
             [clojure.set :as set]))
 
 (defn parse-inst [s]
@@ -9,13 +10,6 @@
       \U [:up n]
       \D [:down n]
       \L [:left n])))
-
-(defn next-pos [[x y] direction]
-  (case direction
-    :left [(dec x) y]
-    :right [(inc x) y]
-    :up [x (dec y)]
-    :down [x (inc y)]))
 
 (def key-set (comp set keys))
 
@@ -35,7 +29,7 @@
 (defn consume-inst [grid pos steps [direction n]]
   (if (zero? n)
     [grid pos steps]
-    (let [pos' (next-pos pos direction)
+    (let [pos' (dir/next-pos pos direction)
           steps' (inc steps)]
       (recur (update-grid grid pos' steps') pos' steps' [direction (dec n)]))))
 

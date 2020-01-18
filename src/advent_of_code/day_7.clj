@@ -55,7 +55,7 @@
                0)))
 
 (comment
-  (let [input (first (u/resource 7 (map (comp vec (u/comma-separated (map u/parse-long))))))]
+  (let [input (u/int-code-resource 7)]
     ;; part one
     (best-output input (set (range 5)) (single-reducer 0))
 

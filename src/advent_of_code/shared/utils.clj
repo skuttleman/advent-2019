@@ -25,3 +25,6 @@
     :else (mapcat (fn [item]
                     (map (partial cons item) (combos (disj set item))))
                   set)))
+
+(defn int-code-resource [day]
+  (first (resource day (map (comp vec (comma-separated (map parse-long)))))))

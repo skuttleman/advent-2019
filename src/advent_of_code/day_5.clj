@@ -14,7 +14,7 @@
                    val)))))
 
 (comment
-  (let [input (first (u/resource 5 (map (comp vec (u/comma-separated (map u/parse-long))))))]
+  (let [input (u/int-code-resource 5)]
     ;; part one
     (diagnostic-code input 1)
 

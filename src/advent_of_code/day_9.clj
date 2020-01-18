@@ -14,8 +14,7 @@
         coll))))
 
 (comment
-
-  (let [input (first (u/resource 9 (map (comp vec (u/comma-separated (map u/parse-long))))))]
+  (let [input (u/int-code-resource 9)]
     ;; part one
     (first (async/<!! (output input 1)))
 
