@@ -1,5 +1,6 @@
 (ns advent-of-code.day-11
   (:require [advent-of-code.shared.directions :as dir]
+            [advent-of-code.shared.draw :as draw]
             [advent-of-code.shared.int-code :as int-code]
             [advent-of-code.shared.utils :as u]
             [clojure.core.async :as async]
@@ -19,33 +20,13 @@
           (recur next-dir (dir/next-pos pos next-dir) (assoc painted pos color)))
         painted))))
 
-(defn draw-square [grid x y]
-  (if (zero? (grid [x y] 0))
+(defn draw-square [_ _ value]
+  (if (zero? (or value 0))
     \space
     \X))
 
-(defn draw-line [grid left right y]
-  (for [x (range left (inc right))]
-    (draw-square grid x y)))
-
-(defn boundaries [ks]
-  (reduce (fn [{:keys [top left bottom right]} [x y]]
-            {:top    (min top y)
-             :left   (min left x)
-             :bottom (max bottom y)
-             :right  (max right x)})
-          {:top    0
-           :left   0
-           :bottom 0
-           :right  0}
-          ks))
-
 (defn draw [grid]
-  (let [{:keys [top left bottom right]} (boundaries (keys grid))]
-    (->> (range top (inc bottom))
-         (map (partial draw-line grid left right))
-         (map string/join)
-         (string/join "\n"))))
+  (draw/draw grid draw-square))
 
 (comment
   (let [input (u/int-code-resource 11)]

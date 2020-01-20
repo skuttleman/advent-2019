@@ -2,15 +2,15 @@
 
 (def turn-left
   {:up    :left
-   :left  :down
    :down  :right
+   :left  :down
    :right :up})
 
 (def turn-right
   {:up    :right
-   :right :down
    :down  :left
-   :left  :up})
+   :left  :up
+   :right :down})
 
 (defn next-pos [[x y] direction]
   (case direction
@@ -18,3 +18,10 @@
     :right [(inc x) y]
     :up [x (dec y)]
     :down [x (inc y)]))
+
+(defn direction [[x-1 y-1] [x-2 y-2]]
+  (cond
+    (< x-1 x-2) :right
+    (> x-1 x-2) :left
+    (< y-1 y-2) :down
+    (> y-1 y-2) :up))

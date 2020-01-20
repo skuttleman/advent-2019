@@ -83,7 +83,6 @@
      (let [[op* & args] (map #(get input % 0) (range pos (+ 5 pos)))
            [op & modes] (->op op*)
            args+modes (interleave args modes)]
-       ;(println (with-out-str (pp/pprint [pos state])))
        (condp = op
          1 (recur (math-step state + args+modes))
          2 (recur (math-step state * args+modes))
