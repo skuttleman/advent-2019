@@ -18,6 +18,9 @@
   (fn [line]
     (sequence xform (string/split line #","))))
 
+(defn digits [line]
+  (map parse-long line))
+
 (defn combos [set]
   (cond
     (empty? set) ()
